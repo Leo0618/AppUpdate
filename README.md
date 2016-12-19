@@ -66,3 +66,23 @@ Step2: use in code
 
 	UpdateManager.config(getApplication(), true, true);
     UpdateManager.checkUpdate("http://ppwapp.simuwang.com/Other/getAndroidVersion?", null);
+
+需要使用到的权限：
+
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+
+
+如果使用默认dialog显示更新信息需要在project/app/AndroidManifest.xml中加入UpdateDefaultDisplayDialogUI：
+
+	  <application >
+		...
+        <activity
+            android:name="com.lzj.appupdate.UpdateDefaultDisplayDialogUI"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/UpdateDefaultDisplayDialog"/>
+
+    </application>
