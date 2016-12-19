@@ -58,10 +58,12 @@ public class UpdateDownLoader {
     }
 
     private void addIntoDowloadTask() {
+        File apkFile = new File(UpdateUtil.getDownloadApkFilePath(mContext));
+        if (apkFile.exists() && apkFile.length() > 0) apkFile.delete();
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mData.getDownload_url()));
         request.allowScanningByMediaScanner();
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationUri(Uri.fromFile(new File(UpdateUtil.getDownloadApkFilePath(mContext))));
+        request.setDestinationUri(Uri.fromFile(apkFile));
         request.setTitle(UpdateUtil.getAppName(mContext));
         mIdForDownload = mDownloadManager.enqueue(request);
         UpdateUtil.log("start a request to download apk file. url=" + mData.getDownload_url());
