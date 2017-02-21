@@ -19,9 +19,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void checkUpdate(View view) {
-        UpdateManager.getInstance()
-                .config(getApplication(), true, true)
-                .checkUpdate("http://ppwapp.simuwang.com/Other/getAndroidVersion?", null);
+        UpdateManager.config(getApplication(), true, true);
+        UpdateManager.checkUpdate("http://ppwapp.simuwang.com/Other/getAndroidVersion?", null);
 
         UIUtil.postDelayed(new Runnable() {
             @Override
