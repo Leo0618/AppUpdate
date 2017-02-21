@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -23,6 +24,7 @@ public class UpdateDownLoader {
     private DownloadManager mDownloadManager;
     private UpdateDataBean mData;
     private long mIdForDownload = -1;
+    private AtomicBoolean mIsDowning;
 
     private static final AtomicReference<UpdateDownLoader> INSTANCE = new AtomicReference<>();
 
@@ -35,9 +37,10 @@ public class UpdateDownLoader {
         }
     }
 
-    public UpdateDownLoader(Context context) {
+    private UpdateDownLoader(Context context) {
         mContext = context;
         mDownloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+        mIsDowning = new AtomicBoolean(false);
     }
 
     /** 开启下载 */
@@ -57,6 +60,24 @@ public class UpdateDownLoader {
         mDownloadManager.remove(mIdForDownload);
     }
 
+    /**
+     * 当前是否正在下载中
+     */
+    public boolean isDownloading() {
+        if (mIsDowning != null) return mIsDowning.get();
+        return false;
+    }
+
+    /**
+     * 当前是否处于强制更新的下载中
+     */
+    public boolean isForceDownloading() {
+        if (mData != null && mData.getIs_forced() == 1 && mIsDowning != null) {
+            return mIsDowning.get();
+        }
+        return false;
+    }
+
     private void addIntoDowloadTask() {
         File apkFile = new File(UpdateUtil.getDownloadApkFilePath(mContext));
         if (apkFile.exists() && apkFile.length() > 0) apkFile.delete();
@@ -66,6 +87,7 @@ public class UpdateDownLoader {
         request.setDestinationUri(Uri.fromFile(apkFile));
         request.setTitle(UpdateUtil.getAppName(mContext));
         mIdForDownload = mDownloadManager.enqueue(request);
+        if (mIsDowning != null) mIsDowning.getAndSet(true);
         UpdateUtil.log("start a request to download apk file. url=" + mData.getDownload_url());
     }
 
@@ -95,6 +117,7 @@ public class UpdateDownLoader {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE) ||
                     intent.getAction().equals(DownloadManager.ACTION_NOTIFICATION_CLICKED)) {
+                if (mIsDowning != null) mIsDowning.getAndSet(false);
                 if (mData == null) return;
                 UpdateUtil.log("receiver has received, now check md5 is same with server.");
                 File downloadedApkFile = new File(UpdateUtil.getDownloadApkFilePath(mContext));

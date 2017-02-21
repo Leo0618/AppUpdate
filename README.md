@@ -58,14 +58,14 @@ msg : 接口请求附加消息，可选；
 **Step1: Add the dependency**
 
     dependencies {
-           compile 'com.lzj.appupdate:library:0.0.1'
+           compile 'com.lzj.appupdate:library:0.0.2'
     }
 
 
 **Step2: Use in code**
 
-	UpdateManager.config(getApplication(), true, true);
-    UpdateManager.checkUpdate("http://ppwapp.simuwang.com/Other/getAndroidVersion?", null);
+	UpdateManager.getInstance().config(getApplication(), true, true);
+    UpdateManager.getInstance().checkUpdate("http://ppwapp.simuwang.com/Other/getAndroidVersion?", null);
 
 
 
@@ -91,3 +91,13 @@ msg : 接口请求附加消息，可选；
 		
 		-dontwarn com.lzj.appupdate.**
 		-keep class com.lzj.appupdate.** { *; }
+
+
+
+# 更新记录 #
+
+2/21/2017 11:59:17 AM  
+----
+1.修改UpdateManager单例方式获取实例；
+
+2.UpdateDownLoader提供下载状态获取方法;

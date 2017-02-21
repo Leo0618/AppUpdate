@@ -30,7 +30,7 @@ public class UpdateManager {
     private static UpdateResultCallback updateResultCallback;
     private static AtomicBoolean mRequesting = new AtomicBoolean(false);
 
-    private static UpdateManager getInstance() {
+    public static UpdateManager getInstance() {
         for (; ; ) {
             UpdateManager manager = INSTANCE.get();
             if (manager != null) return manager;
@@ -53,10 +53,11 @@ public class UpdateManager {
      * @param debug                   是否开启调试信息打印,默认开启
      * @param useDefaultDialogDisplay 是否使用默认的更新信息显示对话框,默认开启
      */
-    public static void config(Context context, boolean debug, boolean useDefaultDialogDisplay) {
+    public UpdateManager config(Context context, boolean debug, boolean useDefaultDialogDisplay) {
         UpdateConfigs.context = context;
         UpdateConfigs.DEBUG = debug;
         UpdateConfigs.useDefaultDialogDisplay = useDefaultDialogDisplay;
+        return getInstance();
     }
 
     /**
@@ -65,7 +66,7 @@ public class UpdateManager {
      * @param url      查询接口
      * @param callback 回调，调用者可以自定义处理,使用默认时可传入null
      */
-    public static void checkUpdate(String url, UpdateResultCallback callback) {
+    public void checkUpdate(String url, UpdateResultCallback callback) {
         if (TextUtils.isEmpty(url)) return;
         if (mRequesting.get()) return;
         mRequesting.getAndSet(true);
