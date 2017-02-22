@@ -64,8 +64,8 @@ msg : 接口请求附加消息，可选；
 
 **Step2: Use in code**
 
-	UpdateManager.getInstance().config(getApplication(), true, true);
-    UpdateManager.getInstance().checkUpdate("http://ppwapp.simuwang.com/Other/getAndroidVersion?", null);
+	UpdateManager.config(getApplication(), true, true);
+    UpdateManager.checkUpdate("http://ppwapp.simuwang.com/Other/getAndroidVersion?", null);
 
 
 
@@ -98,6 +98,4 @@ msg : 接口请求附加消息，可选；
 
 2/21/2017 11:59:17 AM  
 ----
-1.修改UpdateManager单例方式获取实例；
-
-2.UpdateDownLoader提供下载状态获取方法;
+1.UpdateDownLoader提供下载状态获取方法;
