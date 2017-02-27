@@ -5,9 +5,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -25,6 +30,7 @@ public class UpdateDownLoader {
     private UpdateDataBean mData;
     private long mIdForDownload = -1;
     private AtomicBoolean mIsDowning;
+    private IDownloadCallback mIDownloadCallback;
 
     private static final AtomicReference<UpdateDownLoader> INSTANCE = new AtomicReference<>();
 
@@ -46,6 +52,18 @@ public class UpdateDownLoader {
     /** 开启下载 */
     public void download(UpdateDataBean data) {
         this.mData = data;
+        if (mData == null) {
+            throw new IllegalArgumentException("UpdateDataBean is null.");
+        }
+        UpdateUtil.log("download : " + mData.toString());
+        registerBroadcastReceiver();
+        addIntoDowloadTask();
+    }
+
+    /** 开启下载 */
+    public void download(UpdateDataBean data, IDownloadCallback callback) {
+        this.mData = data;
+        this.mIDownloadCallback = callback;
         if (mData == null) {
             throw new IllegalArgumentException("UpdateDataBean is null.");
         }
@@ -78,17 +96,77 @@ public class UpdateDownLoader {
         return false;
     }
 
+    private static final int WHAT_DOWNLOAD_START = 100;
+    private static final int WHAT_DOWNLOAD_ING = 101;
+    private static final int WHAT_DOWNLOAD_FINISHED = 102;
+    private Timer mTimer;
+    private TimerTask mTimerTask;
+    private android.os.Handler mHandler = new Handler(android.os.Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            if (mIDownloadCallback == null) return;
+            switch (msg.what) {
+                case WHAT_DOWNLOAD_START:
+                    mIDownloadCallback.onStart();
+                    UpdateUtil.log("download start... url=" + mData.getDownload_url());
+                    break;
+                case WHAT_DOWNLOAD_ING:
+                    mIDownloadCallback.onProgress(msg.arg1, msg.arg2);
+                    UpdateUtil.log("downloading progress: total=" + msg.arg1 + " , downloaded=" + msg.arg2 + " , " + (msg.arg2 * 100 / msg.arg1));
+                    break;
+                case WHAT_DOWNLOAD_FINISHED:
+                    mIDownloadCallback.onFinished((File) msg.obj);
+                    UpdateUtil.log("download finished apkFile=" + (((File) msg.obj).getAbsolutePath()));
+                    break;
+            }
+        }
+    };
+
     private void addIntoDowloadTask() {
-        File apkFile = new File(UpdateUtil.getDownloadApkFilePath(mContext));
+        final File apkFile = new File(UpdateUtil.getDownloadApkFilePath(mContext));
         if (apkFile.exists() && apkFile.length() > 0) apkFile.delete();
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mData.getDownload_url()));
         request.allowScanningByMediaScanner();
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setDestinationUri(Uri.fromFile(apkFile));
         request.setTitle(UpdateUtil.getAppName(mContext));
+        request.setMimeType("application/vnd.android.package-archive");
         mIdForDownload = mDownloadManager.enqueue(request);
         if (mIsDowning != null) mIsDowning.getAndSet(true);
         UpdateUtil.log("start a request to download apk file. url=" + mData.getDownload_url());
+        if (mIDownloadCallback == null) return;
+        Message msg = Message.obtain();
+        msg.what = WHAT_DOWNLOAD_START;
+        mHandler.sendMessage(msg);
+        final DownloadManager.Query query = new DownloadManager.Query();
+        mTimer = new Timer();
+        mTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                Cursor cursor = mDownloadManager.query(query.setFilterById(mIdForDownload));
+                if (cursor != null && cursor.moveToFirst()) {
+                    if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+                        mTimerTask.cancel();
+                        mTimer.purge();
+                        Message msg = Message.obtain();
+                        msg.what = WHAT_DOWNLOAD_FINISHED;
+                        msg.obj = apkFile;
+                        mHandler.sendMessage(msg);
+                        return;
+                    }
+                    int downloaded = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                    int total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                    mIDownloadCallback.onProgress(total, downloaded);
+                    Message msg = Message.obtain();
+                    msg.what = WHAT_DOWNLOAD_ING;
+                    msg.arg1 = total;
+                    msg.arg2 = downloaded;
+                    mHandler.sendMessage(msg);
+                }
+                cursor.close();
+            }
+        };
+        mTimer.schedule(mTimerTask, 0, 1000);
     }
 
     private DownloadReceiver mDownloadReceiver;
@@ -135,5 +213,13 @@ public class UpdateDownLoader {
             }
             unregisterBroadcastReceiver();
         }
+    }
+
+    public interface IDownloadCallback {
+        void onStart();
+
+        void onProgress(int total, int downloaded);
+
+        void onFinished(File apkFile);
     }
 }
