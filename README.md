@@ -58,7 +58,7 @@ msg : 接口请求附加消息，可选；
 **Step1: Add the dependency**
 
     dependencies {
-           compile 'com.lzj.appupdate:library:0.0.3'
+           compile 'com.lzj.appupdate:library:0.0.5'
     }
 
 
