@@ -121,3 +121,4 @@ msg : 接口请求附加消息，可选；
 ----
 1.修正全局上下文的使用;
 
+2.适配android 7.0+，使用FileProvider处理FileUriExposedException异常;
