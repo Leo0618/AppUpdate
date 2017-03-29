@@ -9,6 +9,7 @@ import android.content.Context;
  * Created by lzj on 2016/12/15.
  */
 
+@SuppressWarnings("ALL")
 class UpdateConfigs {
     /**
      * 应用上下文

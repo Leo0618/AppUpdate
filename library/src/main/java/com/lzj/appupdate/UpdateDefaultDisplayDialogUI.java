@@ -42,7 +42,7 @@ public class UpdateDefaultDisplayDialogUI extends Activity {
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
                     finish();
-                    UpdateUtil.installApkFile(UpdateDefaultDisplayDialogUI.this, data.getApkFileLocalPath());
+                    UpdateUtil.installApkFile(data.getApkFileLocalPath());
                 }
             });
         } else {
@@ -51,7 +51,7 @@ public class UpdateDefaultDisplayDialogUI extends Activity {
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
                     finish();
-                    UpdateDownLoader.getInstance(UpdateConfigs.context).download(data);
+                    UpdateDownLoader.getInstance().download(data);
                 }
             });
         }

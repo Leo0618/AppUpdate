@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("ALL")
 public class UpdateDownLoader {
-    private Context mContext;
     private DownloadManager mDownloadManager;
     private UpdateDataBean mData;
     private long mIdForDownload = -1;
@@ -34,18 +33,20 @@ public class UpdateDownLoader {
 
     private static final AtomicReference<UpdateDownLoader> INSTANCE = new AtomicReference<>();
 
-    public static UpdateDownLoader getInstance(Context context) {
+    public static UpdateDownLoader getInstance() {
         for (; ; ) {
             UpdateDownLoader manager = INSTANCE.get();
             if (manager != null) return manager;
-            manager = new UpdateDownLoader(context);
+            manager = new UpdateDownLoader();
             if (INSTANCE.compareAndSet(null, manager)) return manager;
         }
     }
 
-    private UpdateDownLoader(Context context) {
-        mContext = context;
-        mDownloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+    private UpdateDownLoader() {
+        if (UpdateConfigs.context == null) {
+            throw new IllegalArgumentException("请设置上下文参数，建议使用applicationContext， 调用UpdateManager.config()设置");
+        }
+        mDownloadManager = (DownloadManager) UpdateConfigs.context.getSystemService(Context.DOWNLOAD_SERVICE);
         mIsDowning = new AtomicBoolean(false);
     }
 
@@ -62,14 +63,8 @@ public class UpdateDownLoader {
 
     /** 开启下载 */
     public void download(UpdateDataBean data, IDownloadCallback callback) {
-        this.mData = data;
         this.mIDownloadCallback = callback;
-        if (mData == null) {
-            throw new IllegalArgumentException("UpdateDataBean is null.");
-        }
-        UpdateUtil.log("download : " + mData.toString());
-        registerBroadcastReceiver();
-        addIntoDowloadTask();
+        download(data);
     }
 
     /** 取消下载 */
@@ -123,13 +118,13 @@ public class UpdateDownLoader {
     };
 
     private void addIntoDowloadTask() {
-        final File apkFile = new File(UpdateUtil.getDownloadApkFilePath(mContext));
+        final File apkFile = new File(UpdateUtil.getDownloadApkFilePath(UpdateConfigs.context));
         if (apkFile.exists() && apkFile.length() > 0) apkFile.delete();
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mData.getDownload_url()));
         request.allowScanningByMediaScanner();
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setDestinationUri(Uri.fromFile(apkFile));
-        request.setTitle(UpdateUtil.getAppName(mContext));
+        request.setTitle(UpdateUtil.getAppName(UpdateConfigs.context));
         request.setMimeType("application/vnd.android.package-archive");
         mIdForDownload = mDownloadManager.enqueue(request);
         if (mIsDowning != null) mIsDowning.getAndSet(true);
@@ -178,13 +173,13 @@ public class UpdateDownLoader {
         if (mDownloadReceiver == null) {
             mDownloadReceiver = new DownloadReceiver();
         }
-        mContext.registerReceiver(mDownloadReceiver, intentFilter);
+        UpdateConfigs.context.registerReceiver(mDownloadReceiver, intentFilter);
         UpdateUtil.log("registerReceiver success.");
     }
 
     private void unregisterBroadcastReceiver() {
         if (mDownloadReceiver != null) {
-            mContext.unregisterReceiver(mDownloadReceiver);
+            UpdateConfigs.context.unregisterReceiver(mDownloadReceiver);
             mDownloadReceiver = null;
             UpdateUtil.log("unregisterReceiver success.");
         }
@@ -198,7 +193,7 @@ public class UpdateDownLoader {
                 if (mIsDowning != null) mIsDowning.getAndSet(false);
                 if (mData == null) return;
                 UpdateUtil.log("receiver has received, now check md5 is same with server.");
-                File downloadedApkFile = new File(UpdateUtil.getDownloadApkFilePath(mContext));
+                File downloadedApkFile = new File(UpdateUtil.getDownloadApkFilePath(UpdateConfigs.context));
                 String md5Local = UpdateUtil.md5File(downloadedApkFile);
                 UpdateUtil.log("downloaded apk file md5 = " + md5Local + " \n server apk file md5 = " + mData.getFile_md5());
                 if (!md5Local.equalsIgnoreCase(mData.getFile_md5())) {
@@ -208,7 +203,7 @@ public class UpdateDownLoader {
                     }
                     UpdateUtil.log("md5 is not fit, delete downloaded apk file = " + deleteResult);
                 } else {
-                    UpdateUtil.installApkFile(context, downloadedApkFile.getAbsolutePath());
+                    UpdateUtil.installApkFile(downloadedApkFile.getAbsolutePath());
                 }
             }
             unregisterBroadcastReceiver();

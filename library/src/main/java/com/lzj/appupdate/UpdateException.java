@@ -7,6 +7,7 @@ package com.lzj.appupdate;
  * Created by lzj on 2016/12/13.
  */
 
+@SuppressWarnings("ALL")
 public class UpdateException extends Exception {
 
     private int state = -1;

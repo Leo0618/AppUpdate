@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -151,15 +153,25 @@ public final class UpdateUtil {
     /**
      * 安装apk文件
      *
-     * @param context     上下文
      * @param apkFilePath apk文件路径
      */
-    public static void installApkFile(Context context, String apkFilePath) {
+    public static void installApkFile(String apkFilePath) {
+        if (UpdateConfigs.context == null) {
+            throw new IllegalArgumentException("请设置上下文参数，建议使用applicationContext， 调用UpdateManager.config()设置");
+        }
         log("launch install app UI");
         Intent intentForInstall = new Intent();
         intentForInstall.setAction(Intent.ACTION_VIEW);
-        intentForInstall.setDataAndType(Uri.fromFile(new File(apkFilePath)), "application/vnd.android.package-archive");
         intentForInstall.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intentForInstall);
+        File apkFile = new File(apkFilePath);
+        Uri apkUri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            apkUri = FileProvider.getUriForFile(UpdateConfigs.context, UpdateConfigs.context.getPackageName() + ".fileprovider", apkFile);
+            intentForInstall.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else {
+            apkUri = Uri.fromFile(apkFile);
+        }
+        intentForInstall.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        UpdateConfigs.context.startActivity(intentForInstall);
     }
 }

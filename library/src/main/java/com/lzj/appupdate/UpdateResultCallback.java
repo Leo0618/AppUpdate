@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
  * Created by lzj on 2016/12/13.
  */
 
+@SuppressWarnings("ALL")
 public abstract class UpdateResultCallback {
     public void onStart() {
     }

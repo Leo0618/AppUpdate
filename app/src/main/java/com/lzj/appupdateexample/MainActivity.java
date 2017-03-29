@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         UIUtil.postDelayed(new Runnable() {
             @Override
             public void run() {
-                boolean downloading = UpdateDownLoader.getInstance(MainActivity.this).isDownloading();
+                boolean downloading = UpdateDownLoader.getInstance().isDownloading();
                 LogUtil.e("leo", "downloading=" + downloading);
                 UIUtil.postDelayed(this, 3000);
             }

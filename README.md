@@ -58,7 +58,7 @@ msg : 接口请求附加消息，可选；
 **Step1: Add the dependency**
 
     dependencies {
-           compile 'com.lzj.appupdate:library:0.0.5'
+           compile 'com.lzj.appupdate:library:0.1.0'
     }
 
 
@@ -86,6 +86,23 @@ msg : 接口请求附加消息，可选；
 	            android:theme="@style/UpdateDefaultDisplayDialog"/>
 	    </application>
 
+- 适配7.0+系统的Uri权限问题，请在project/app/AndroidManifest.xml中加入如下：
+
+		<application >
+			...
+	        <!--应用内部更新 适配7.0+的配置-->
+            <provider
+                android:name="android.support.v4.content.FileProvider"
+                android:authorities="${applicationId}.fileprovider"
+                android:exported="false"
+                android:grantUriPermissions="true">
+
+                <meta-data
+                    android:name="android.support.FILE_PROVIDER_PATHS"
+                    android:resource="@xml/file_provider_paths"/>
+            </provider>
+	    </application>
+
 
 - 混淆
 		
@@ -99,3 +116,8 @@ msg : 接口请求附加消息，可选；
 2/21/2017 11:59:17 AM  
 ----
 1.UpdateDownLoader提供下载状态获取方法;
+
+3/29/2017 10:37:50 AM  
+----
+1.修正全局上下文的使用;
+
