@@ -151,7 +151,6 @@ public class UpdateDownLoader {
                     }
                     int downloaded = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                     int total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-                    mIDownloadCallback.onProgress(total, downloaded);
                     Message msg = Message.obtain();
                     msg.what = WHAT_DOWNLOAD_ING;
                     msg.arg1 = total;
