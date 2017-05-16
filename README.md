@@ -58,7 +58,7 @@ msg : 接口请求附加消息，可选；
 **Step1: Add the dependency**
 
     dependencies {
-           compile 'com.lzj.appupdate:library:0.1.1'
+           compile 'com.leo618:appupdate:1.0.0'
     }
 
 
@@ -81,7 +81,7 @@ msg : 接口请求附加消息，可选；
 		<application >
 			...
 	        <activity
-	            android:name="com.lzj.appupdate.UpdateDefaultDisplayDialogUI"
+	            android:name="com.leo618.appupdate.UpdateDefaultDisplayDialogUI"
 	            android:configChanges="keyboardHidden|orientation|screenSize"
 	            android:theme="@style/UpdateDefaultDisplayDialog"/>
 	    </application>
@@ -106,8 +106,8 @@ msg : 接口请求附加消息，可选；
 
 - 混淆
 		
-		-dontwarn com.lzj.appupdate.**
-		-keep class com.lzj.appupdate.** { *; }
+		-dontwarn com.leo618.appupdate.**
+		-keep class com.leo618.appupdate.** { *; }
 
 
 
@@ -122,3 +122,9 @@ msg : 接口请求附加消息，可选；
 1.修正全局上下文的使用;
 
 2.适配android 7.0+，使用FileProvider处理FileUriExposedException异常;
+
+5/16/2017 10:15:09 AM 
+----
+1.更改包名;
+
+2.demo中新增启动授权检查;

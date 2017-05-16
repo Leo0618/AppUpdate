@@ -1,4 +1,4 @@
-package com.lzj.appupdate;
+package com.leo618.appupdate;
 
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Created by lzj on 2016/12/13.
  */
 
+@SuppressWarnings("unused")
 public class UpdateManager {
     private static final AtomicReference<UpdateManager> INSTANCE = new AtomicReference<>();
     private Handler uiHandler;

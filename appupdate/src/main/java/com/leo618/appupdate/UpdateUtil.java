@@ -1,4 +1,4 @@
-package com.lzj.appupdate;
+package com.leo618.appupdate;
 
 import android.content.Context;
 import android.content.Intent;

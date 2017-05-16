@@ -1,4 +1,4 @@
-package com.lzj.appupdate;
+package com.leo618.appupdate;
 
 /**
  * function:
