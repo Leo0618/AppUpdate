@@ -58,7 +58,7 @@ msg : 接口请求附加消息，可选；
 **Step1: Add the dependency**
 
     dependencies {
-           compile 'com.leo618:appupdate:1.0.0'
+           compile 'com.leo618:appupdate:1.0.1'
     }
 
 

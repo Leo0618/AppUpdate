@@ -46,7 +46,7 @@ public final class UpdateUtil {
 
     public static void log(String msg) {
         if (!UpdateConfigs.DEBUG) return;
-        Log.d("lzj/Update", msg);
+        Log.d("leo/Update", msg);
     }
 
     public static int getPackageVersionCode(Context context) {
