@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:id="@+id/activity_main"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -16,5 +15,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="checkUpdate"
-        android:text="检查更新"/>
+        android:text="检查更新" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="checkUpdateForToast"
+        android:text="CheckUpdateForToast"
+        android:textAllCaps="false" />
 </LinearLayout>

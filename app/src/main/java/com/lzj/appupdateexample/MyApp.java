@@ -12,9 +12,11 @@ import com.leo618.utils.AndroidUtilsCore;
  */
 
 public class MyApp extends Application {
+
     @Override
     public void onCreate() {
         super.onCreate();
         AndroidUtilsCore.install(this);
     }
+
 }
